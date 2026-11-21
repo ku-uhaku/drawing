@@ -13,6 +13,7 @@ pub trait Drawable {
 pub struct Point {
     x: i32,
     y: i32,
+       
 }
 
 impl Point {
@@ -34,7 +35,11 @@ impl Drawable for Point {
     }
 
     fn color(&self) -> Color {
-        Color::rgb(0, 255, 0)
+         Color::rgb(
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+            )
     }
 }
 
@@ -88,4 +93,47 @@ impl Drawable for Line {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
 
+    struct Counter(i32);
+
+    impl Displayable for Counter {
+        fn display(&mut self, x: i32, y: i32, color: Color) {
+            self.0 += 1;
+        }
+    }
+
+    #[test]
+    fn random_point_and_line() {
+        for _ in 0..1000 {
+            let p = Point::random(100, 50);
+
+            assert!(p.x >= 0 && p.x < 100);
+            assert!(p.y >= 0 && p.y < 50);
+
+            let l = Line::random(100, 50);
+
+            for p in [&l.p1, &l.p2] {
+                assert!(p.x >= 0 && p.x < 100);
+                assert!(p.y >= 0 && p.y < 50);
+            }
+        }
+    }
+
+    #[test]
+    fn edge_case_point_and_line() {
+        let line = Line::new(
+            Point::new(1, 1),
+            Point::new(1, 1),
+            Color::rgb(255, 0, 0),
+        );
+
+        let mut counter = Counter(0);
+
+        line.draw(&mut counter);
+
+        assert_eq!(counter.0, 1);
+    }
+}
