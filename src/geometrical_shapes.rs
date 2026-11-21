@@ -5,6 +5,7 @@ pub trait Displayable {
 }
 
 pub trait Drawable  {
-    
+    fn draw(&self, image: &mut dyn Displayable);
+    fn color(&self) -> Color;
 }
 
