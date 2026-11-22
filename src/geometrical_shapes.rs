@@ -29,7 +29,7 @@ impl Point {
         Self {
             x,
             y,
-            color: Color::rgb(15, 111,23),
+            color: random_color(),
         }
     }
 
@@ -62,7 +62,7 @@ impl Line {
         Self {
             p1: p1.clone(),
             p2: p2.clone(),
-            color: Color::blue(),
+            color: random_color(),
         }
     }
 
@@ -110,7 +110,7 @@ impl Circle {
         Self {
             c: c.clone(),
             r: r.max(0),
-            color: Color::red(),
+            color: random_color(),
         }
     }
 
@@ -165,18 +165,18 @@ impl Triangle {
             p1: p1.clone(),
             p2: p2.clone(),
             p3: p3.clone(),
-            color: Color::rgb(120, 15, 130),
+            color: random_color(),
         }
     }
 
-    // pub fn random(width: i32, height: i32) -> Self {
-    //     Self {
-    //         p1: Point::random(width, height),
-    //         p2: Point::random(width, height),
-    //         p3: Point::random(width, height),
-    //         color: random_color(),
-    //     }
-    // }
+    /*pub fn random(width: i32, height: i32) -> Self {
+        Self {
+            p1: Point::random(width, height),
+            p2: Point::random(width, height),
+            p3: Point::random(width, height),
+            color: random_color(),
+        }
+    }*/
 }
 
 impl Drawable for Triangle {
@@ -219,17 +219,17 @@ impl Rectangle {
         Self {
             p1: p1.clone(),
             p2: p2.clone(),
-            color: Color::white(),
+            color: random_color(),
         }
     }
 
-    // pub fn random(width: i32, height: i32) -> Self {
-    //     Self {
-    //         p1: Point::random(width, height),
-    //         p2: Point::random(width, height),
-    //         color: random_color(),
-    //     }
-    // }
+    /* pub fn random(width: i32, height: i32) -> Self {
+        Self {
+            p1: Point::random(width, height),
+            p2: Point::random(width, height),
+            color: random_color(),
+        }
+    }*/
 }
 
 impl Drawable for Rectangle {
