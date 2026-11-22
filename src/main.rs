@@ -29,7 +29,7 @@ fn main() {
     // }
 
 
-    let cube = gs::Cube::new(&gs::Point::new(500, 500), 100);
+    let cube = gs::Cube::new(&gs::Point::random(image.width, image.height), 100);
     cube.draw(&mut image);
     raster::save(&image, "image.png").unwrap();
 }

@@ -31,11 +31,7 @@ impl Drawable for Point {
     }
 
     fn color(&self) -> Color {
-        Color::rgb(
-            rand::random_range(0..255),
-            rand::random_range(0..255),
-            rand::random_range(0..255),
-        )
+        Color::white()
     }
 }
 
@@ -168,11 +164,7 @@ impl Triangle {
             p1: *p1,
             p2: *p2,
             p3: *p3,
-            color: Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ),
+            color: Color::white(),
         }
     }
 }
@@ -201,11 +193,7 @@ impl Rectangle {
         Self {
             p1: *p1,
             p2: *p2,
-            color: Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ),
+            color: Color::white(),
         }
     }
 }
@@ -240,11 +228,7 @@ impl Cube {
         Self {
             p1: *p1,
             size,
-            color: Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ),
+            color: Color::white()
         }
     }
 }
