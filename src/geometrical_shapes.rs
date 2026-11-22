@@ -29,7 +29,7 @@ impl Point {
         Self {
             x,
             y,
-            color: Color::white(),
+            color: Color::rgb(15, 111,23),
         }
     }
 
@@ -62,7 +62,7 @@ impl Line {
         Self {
             p1: p1.clone(),
             p2: p2.clone(),
-            color: Color::white(),
+            color: Color::blue(),
         }
     }
 
@@ -110,7 +110,7 @@ impl Circle {
         Self {
             c: c.clone(),
             r: r.max(0),
-            color: Color::white(),
+            color: Color::red(),
         }
     }
 
@@ -165,7 +165,7 @@ impl Triangle {
             p1: p1.clone(),
             p2: p2.clone(),
             p3: p3.clone(),
-            color: Color::white(),
+            color: Color::rgb(120, 15, 130),
         }
     }
 
