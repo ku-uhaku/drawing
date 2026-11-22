@@ -97,19 +97,18 @@ pub struct Circle {
 }
 
 impl Circle {
-    pub fn new(c: &Point, r: i32, color: Color) -> Self {
-        Self { c: *c, r: r, color }
+    pub fn new(c: &Point, r: i32) -> Self {
+        Self { c: *c, r: r, color:  Color::rgb(
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+            ) }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
         Self::new(
             &Point::random(width, height),
             rand::random_range(0..255),
-            Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ),
         )
     }
 }
