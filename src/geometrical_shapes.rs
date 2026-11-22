@@ -89,6 +89,61 @@ impl Drawable for Line {
     }
 }
 
+#[derive(Debug)]
+pub struct Circle {
+    c: Point,
+    r: i32,
+    color: Color,
+}
+
+impl Circle {
+    pub fn new(c: &Point, r: i32, color: Color) -> Self {
+        Self { c: *c, r: r, color }
+    }
+
+    pub fn random(width: i32, height: i32) -> Self {
+        Self::new(
+            &Point::random(width, height),
+            rand::random_range(0..255),
+            Color::rgb(
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+            ),
+        )
+    }
+}
+
+impl Drawable for Circle {
+    fn draw(&self, image: &mut dyn Displayable) {
+        let mut d = 1 - self.r;
+        let mut x = 0;
+        let mut y = self.r;
+        while x <= y {
+            image.display(self.c.x + x, self.c.y + y, self.color());
+            image.display(self.c.x - x, self.c.y + y, self.color());
+            image.display(self.c.x + x, self.c.y - y, self.color());
+            image.display(self.c.x - x, self.c.y - y, self.color());
+            image.display(self.c.x + y, self.c.y + x, self.color());
+            image.display(self.c.x - y, self.c.y + x, self.color());
+            image.display(self.c.x + y, self.c.y - x, self.color());
+            image.display(self.c.x - y, self.c.y - x, self.color());
+            if d < 0 {
+                x += 1;
+                d = d + (2 * x) + 1
+            } else {
+                x += 1;
+                y -= 1;
+                d = d + (2 * (x - y)) + 1
+            }
+        }
+    }
+
+    fn color(&self) -> Color {
+        self.color.clone()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -109,6 +164,19 @@ mod tests {
                 let point = Point::random(width, height);
                 let line = Line::random(width, height);
                 for p in [&point, &line.p1, &line.p2] {
+                    assert!((0..width).contains(&p.x));
+                    assert!((0..height).contains(&p.y));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn random_center_inside_image() {
+        for (width, height) in [(1, 1), (1, 12), (12, 1), (100, 50)] {
+            for _ in 0..100 {
+                let center = Point::random(width, height);
+                for p in [&center] {
                     assert!((0..width).contains(&p.x));
                     assert!((0..height).contains(&p.y));
                 }
@@ -228,7 +296,7 @@ impl Cube {
         Self {
             p1: *p1,
             size,
-            color: Color::white()
+            color: Color::white(),
         }
     }
 }
