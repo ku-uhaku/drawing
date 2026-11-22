@@ -7,13 +7,9 @@ use raster::{Color, Image};
 fn main() {
     let mut image = Image::blank(1000, 1000);
 
-    for _ in 1..50 {
-        gs::Line::random(image.width, image.height).draw(&mut image);
-    }
+    gs::Line::random(image.width, image.height).draw(&mut image);
 
-    for _ in 1..50 {
-        gs::Point::random(image.width, image.height).draw(&mut image);
-    }
+    gs::Point::random(image.width, image.height).draw(&mut image);
 
     let rectangle = gs::Rectangle::new(&gs::Point::new(150, 300), &gs::Point::new(50, 60));
     rectangle.draw(&mut image);
@@ -25,14 +21,13 @@ fn main() {
     );
     triangle.draw(&mut image);
 
-    
-    for _ in 1..50 {
-        gs::Circle::random(image.width, image.height).draw(&mut image);
-    }
+    // for _ in 1..50 {
+    //     gs::Circle::random(image.width, image.height).draw(&mut image);
+    // }
 
+    gs::Circle::new(&gs::Point::random(image.width, image.height), 1, Color::red()).draw(&mut image);
+     gs::Cube::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
 
-    let cube = gs::Cube::new(&gs::Point::random(image.width, image.height), 100);
-    cube.draw(&mut image);
     raster::save(&image, "image.png").unwrap();
 }
 
