@@ -9,6 +9,14 @@ pub trait Drawable {
     fn color(&self) -> Color;
 }
 
+fn random_color() -> Color {
+    Color::rgb(
+        rand::random_range(0..255),
+        rand::random_range(0..255),
+        rand::random_range(0..255),
+    )
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     x: i32,
@@ -43,11 +51,11 @@ pub struct Line {
 }
 
 impl Line {
-    pub fn new(p1: &Point, p2: &Point, color: Color) -> Self {
+    pub fn new(p1: &Point, p2: &Point) -> Self {
         Self {
             p1: *p1,
             p2: *p2,
-            color,
+            color: Color::white(),
         }
     }
 
@@ -55,11 +63,7 @@ impl Line {
         Self {
             p1: Point::random(width, height),
             p2: Point::random(width, height),
-            color: Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ),
+            color: random_color(),
         }
     }
 }
@@ -98,18 +102,19 @@ pub struct Circle {
 
 impl Circle {
     pub fn new(c: &Point, r: i32) -> Self {
-        Self { c: *c, r: r, color:  Color::rgb(
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-                rand::random_range(0..255),
-            ) }
+        Self {
+            c: *c,
+            r,
+            color: Color::white(),
+        }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        Self::new(
-            &Point::random(width, height),
-            rand::random_range(0..255),
-        )
+        Self {
+            c: Point::random(width, height),
+            r: rand::random_range(0..255),
+            color: random_color(),
+        }
     }
 }
 
@@ -160,13 +165,38 @@ impl Triangle {
             color: Color::white(),
         }
     }
+
+    pub fn random(width: i32, height: i32) -> Self {
+        Self {
+            p1: Point::random(width, height),
+            p2: Point::random(width, height),
+            p3: Point::random(width, height),
+            color: random_color(),
+        }
+    }
 }
 
 impl Drawable for Triangle {
     fn draw(&self, image: &mut dyn Displayable) {
-        Line::new(&self.p1, &self.p2, self.color.clone()).draw(image);
-        Line::new(&self.p2, &self.p3, self.color.clone()).draw(image);
-        Line::new(&self.p3, &self.p1, self.color.clone()).draw(image);
+        let c = self.color();
+        Line {
+            p1: self.p1,
+            p2: self.p2,
+            color: c.clone(),
+        }
+        .draw(image);
+        Line {
+            p1: self.p2,
+            p2: self.p3,
+            color: c.clone(),
+        }
+        .draw(image);
+        Line {
+            p1: self.p3,
+            p2: self.p1,
+            color: c,
+        }
+        .draw(image);
     }
 
     fn color(&self) -> Color {
@@ -189,18 +219,47 @@ impl Rectangle {
             color: Color::white(),
         }
     }
+
+    pub fn random(width: i32, height: i32) -> Self {
+        Self {
+            p1: Point::random(width, height),
+            p2: Point::random(width, height),
+            color: random_color(),
+        }
+    }
 }
 
 impl Drawable for Rectangle {
     fn draw(&self, image: &mut dyn Displayable) {
-        let a = &self.p1;
-        let b = &Point::new(self.p2.x, self.p1.y);
-        let c = &self.p2;
-        let d = &Point::new(self.p1.x, self.p2.y);
-        Line::new(a, b, self.color.clone()).draw(image);
-        Line::new(b, c, self.color.clone()).draw(image);
-        Line::new(c, d, self.color.clone()).draw(image);
-        Line::new(d, a, self.color.clone()).draw(image);
+        let a = self.p1;
+        let b = Point::new(self.p2.x, self.p1.y);
+        let c = self.p2;
+        let d = Point::new(self.p1.x, self.p2.y);
+        let col = self.color();
+        Line {
+            p1: a,
+            p2: b,
+            color: col.clone(),
+        }
+        .draw(image);
+        Line {
+            p1: b,
+            p2: c,
+            color: col.clone(),
+        }
+        .draw(image);
+        Line {
+            p1: c,
+            p2: d,
+            color: col.clone(),
+        }
+        .draw(image);
+        Line {
+            p1: d,
+            p2: a,
+            color: col,
+        }
+        .draw(image);
     }
 
     fn color(&self) -> Color {
@@ -222,6 +281,14 @@ impl Cube {
             p1: *p1,
             size,
             color: Color::white(),
+        }
+    }
+
+    pub fn random(width: i32, height: i32) -> Self {
+        Self {
+            p1: Point::random(width, height),
+            size: rand::random_range(1..100),
+            color: random_color(),
         }
     }
 }
@@ -254,9 +321,15 @@ impl Drawable for Cube {
         .draw(image);
 
         for i in 0..4 {
-            Line::new(&front[i], &back[i], self.color()).draw(image);
+            Line {
+                p1: front[i],
+                p2: back[i],
+                color: self.color(),
+            }
+            .draw(image);
         }
     }
+
     fn color(&self) -> Color {
         self.color.clone()
     }
@@ -294,10 +367,8 @@ mod tests {
         for (width, height) in [(1, 1), (1, 12), (12, 1), (100, 50)] {
             for _ in 0..100 {
                 let center = Point::random(width, height);
-                for p in [&center] {
-                    assert!((0..width).contains(&p.x));
-                    assert!((0..height).contains(&p.y));
-                }
+                assert!((0..width).contains(&center.x));
+                assert!((0..height).contains(&center.y));
             }
         }
     }
@@ -309,78 +380,6 @@ mod tests {
             expected.extend([(x, 3), (x, 7)]);
         }
         for y in 4..7 {
-            #[derive(Debug)]
-            pub struct Triangle {
-                p1: Point,
-                p2: Point,
-                p3: Point,
-                color: Color,
-            }
-
-            impl Triangle {
-                pub fn new(p1: &Point, p2: &Point, p3: &Point) -> Self {
-                    Self {
-                        p1: *p1,
-                        p2: *p2,
-                        p3: *p3,
-                        color: Color::white(),
-                    }
-                }
-            }
-
-            impl Drawable for Triangle {
-                fn draw(&self, image: &mut dyn Displayable) {
-                    Line::new(&self.p1, &self.p2, self.color.clone()).draw(image);
-                    Line::new(&self.p2, &self.p3, self.color.clone()).draw(image);
-                    Line::new(&self.p3, &self.p1, self.color.clone()).draw(image);
-                }
-
-                fn color(&self) -> Color {
-                    self.color.clone()
-                }
-            }
-
-            #[derive(Debug)]
-            pub struct Rectangle {
-                p1: Point,
-                p2: Point,
-                color: Color,
-            }
-
-            impl Rectangle {
-                pub fn new(p1: &Point, p2: &Point) -> Self {
-                    Self {
-                        p1: *p1,
-                        p2: *p2,
-                        color: Color::white(),
-                    }
-                }
-            }
-
-            impl Drawable for Rectangle {
-                fn draw(&self, image: &mut dyn Displayable) {
-                    let a = &self.p1;
-                    let b = &Point::new(self.p2.x, self.p1.y);
-                    let c = &self.p2;
-                    let d = &Point::new(self.p1.x, self.p2.y);
-                    Line::new(a, b, self.color.clone()).draw(image);
-                    Line::new(b, c, self.color.clone()).draw(image);
-                    Line::new(c, d, self.color.clone()).draw(image);
-                    Line::new(d, a, self.color.clone()).draw(image);
-                }
-
-                fn color(&self) -> Color {
-                    self.color.clone()
-                }
-            }
-
-            // adding cube
-
-            pub struct Cube {
-                p1: Point,
-                size: i32,
-                color: Color,
-            }
             expected.extend([(2, y), (5, y)]);
         }
         expected.sort_unstable();
@@ -400,10 +399,9 @@ mod tests {
 
     #[test]
     fn identical_line_endpoints_draw_one_pixel() {
-        let line = Line::new(&Point::new(1, 1), &Point::new(1, 1), Color::white());
+        let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
         let mut canvas = Canvas::default();
         line.draw(&mut canvas);
         assert_eq!(canvas.0, vec![(1, 1)]);
     }
 }
-// Triangle and Rectangle

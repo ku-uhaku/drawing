@@ -25,7 +25,7 @@ fn main() {
     //     gs::Circle::random(image.width, image.height).draw(&mut image);
     // }
 
-    gs::Circle::new(&gs::Point::random(image.width, image.height), 1, Color::red()).draw(&mut image);
+    gs::Circle::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
      gs::Cube::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
 
     raster::save(&image, "image.png").unwrap();
