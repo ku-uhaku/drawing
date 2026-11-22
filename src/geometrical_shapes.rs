@@ -60,8 +60,8 @@ impl Line {
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        let mut  r = Self::new(&Point::random(width, height), &Point::random(width, height));
-        r.color =  random_color();
+        let mut r = Self::new(&Point::random(width, height), &Point::random(width, height));
+        r.color = random_color();
         r
     }
 }
@@ -102,13 +102,13 @@ impl Circle {
     pub fn new(c: &Point, r: i32) -> Self {
         Self {
             c: *c,
-            r : r.max(0),
+            r: r.max(0),
             color: Color::white(),
         }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        let mut c = Self::new( &Point::random(width, height), rand::random_range(0..255));
+        let mut c = Self::new(&Point::random(width, height), rand::random_range(0..255));
         c.color = random_color();
         c
     }
@@ -245,7 +245,6 @@ impl Drawable for Rectangle {
         }
         .draw(image);
 
-            
         Line {
             p1: c,
             p2: d,
@@ -258,74 +257,6 @@ impl Drawable for Rectangle {
             color: col,
         }
         .draw(image);
-    }
-
-    fn color(&self) -> Color {
-        self.color.clone()
-    }
-}
-
-// adding cube
-
-pub struct Cube {
-    p1: Point,
-    size: i32,
-    color: Color,
-}
-
-impl Cube {
-    pub fn new(p1: &Point, size: i32) -> Self {
-        Self {
-            p1: *p1,
-            size,
-            color: Color::white(),
-        }
-    }
-
-    // pub fn random(width: i32, height: i32) -> Self {
-    //     Self {
-    //         p1: Point::random(width, height),
-    //         size: rand::random_range(1..100),
-    //         color: random_color(),
-    //     }
-    // }
-}
-
-impl Drawable for Cube {
-    fn draw(&self, image: &mut dyn Displayable) {
-        let x = self.p1.x;
-        let y = self.p1.y;
-        let size = self.size;
-        let offset = size / 4;
-        let front = [
-            Point::new(x, y),
-            Point::new(x + size, y),
-            Point::new(x + size, y + size),
-            Point::new(x, y + size),
-        ];
-        let back = front.map(|p| Point::new(p.x + offset, p.y + offset));
-
-        Rectangle {
-            p1: front[0],
-            p2: front[2],
-            color: self.color(),
-        }
-        .draw(image);
-        Rectangle {
-            p1: back[0],
-            p2: back[2],
-            color: self.color(),
-        }
-        .draw(image);
-
-        for i in 0..4 {
-            Line {
-                p1: front[i],
-                p2: back[i],
-                color: self.color(),
-            }
-            .draw(image);
-        }
     }
 
     fn color(&self) -> Color {
@@ -356,6 +287,16 @@ mod tests {
                     assert!((0..width).contains(&p.x));
                     assert!((0..height).contains(&p.y));
                 }
+            }
+        }
+    }
+    #[test]
+    fn random_circle_center_inside_image() {
+        for (width, height) in [(1, 1), (1, 12), (12, 1), (100, 50)] {
+            for _ in 0..100 {
+                let circle = Circle::random(width, height);
+                assert!((0..width).contains(&circle.c.x));
+                assert!((0..height).contains(&circle.c.y));
             }
         }
     }
@@ -399,7 +340,8 @@ mod tests {
     fn identical_line_endpoints_draw_one_pixel() {
         let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
         let mut canvas = Canvas::default();
-        line.draw(&mut canvas);let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
+        line.draw(&mut canvas);
+        let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
         let mut canvas = Canvas::default();
         line.draw(&mut canvas);
         assert_eq!(canvas.0, vec![(1, 1)]);
