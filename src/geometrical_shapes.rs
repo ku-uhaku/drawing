@@ -17,19 +17,26 @@ fn random_color() -> Color {
     )
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Point {
     x: i32,
     y: i32,
+    color: Color,
 }
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
-        Self { x, y }
+        Self {
+            x,
+            y,
+            color: Color::white(),
+        }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        Self::new(rand::random_range(0..width), rand::random_range(0..height))
+        let mut r = Self::new(rand::random_range(0..width), rand::random_range(0..height));
+        r.color = random_color();
+        r
     }
 }
 
@@ -39,7 +46,7 @@ impl Drawable for Point {
     }
 
     fn color(&self) -> Color {
-        Color::white()
+        self.color.clone()
     }
 }
 
@@ -53,8 +60,8 @@ pub struct Line {
 impl Line {
     pub fn new(p1: &Point, p2: &Point) -> Self {
         Self {
-            p1: *p1,
-            p2: *p2,
+            p1: p1.clone(),
+            p2: p2.clone(),
             color: Color::white(),
         }
     }
@@ -101,7 +108,7 @@ pub struct Circle {
 impl Circle {
     pub fn new(c: &Point, r: i32) -> Self {
         Self {
-            c: *c,
+            c: c.clone(),
             r: r.max(0),
             color: Color::white(),
         }
@@ -155,9 +162,9 @@ pub struct Triangle {
 impl Triangle {
     pub fn new(p1: &Point, p2: &Point, p3: &Point) -> Self {
         Self {
-            p1: *p1,
-            p2: *p2,
-            p3: *p3,
+            p1: p1.clone(),
+            p2: p2.clone(),
+            p3: p3.clone(),
             color: Color::white(),
         }
     }
@@ -176,20 +183,20 @@ impl Drawable for Triangle {
     fn draw(&self, image: &mut dyn Displayable) {
         let c = self.color();
         Line {
-            p1: self.p1,
-            p2: self.p2,
+            p1: self.p1.clone(),
+            p2: self.p2.clone(),
             color: c.clone(),
         }
         .draw(image);
         Line {
-            p1: self.p2,
-            p2: self.p3,
+            p1: self.p2.clone(),
+            p2: self.p3.clone(),
             color: c.clone(),
         }
         .draw(image);
         Line {
-            p1: self.p3,
-            p2: self.p1,
+            p1: self.p3.clone(),
+            p2: self.p1.clone(),
             color: c,
         }
         .draw(image);
@@ -210,8 +217,8 @@ pub struct Rectangle {
 impl Rectangle {
     pub fn new(p1: &Point, p2: &Point) -> Self {
         Self {
-            p1: *p1,
-            p2: *p2,
+            p1: p1.clone(),
+            p2: p2.clone(),
             color: Color::white(),
         }
     }
@@ -227,27 +234,27 @@ impl Rectangle {
 
 impl Drawable for Rectangle {
     fn draw(&self, image: &mut dyn Displayable) {
-        let a = self.p1;
+        let a = self.p1.clone();
         let b = Point::new(self.p2.x, self.p1.y);
-        let c = self.p2;
+        let c = self.p2.clone();
         let d = Point::new(self.p1.x, self.p2.y);
         let col = self.color();
         Line {
-            p1: a,
-            p2: b,
+            p1: a.clone(),
+            p2: b.clone(),
             color: col.clone(),
         }
         .draw(image);
         Line {
-            p1: b,
-            p2: c,
+            p1: b.clone(),
+            p2: c.clone(),
             color: col.clone(),
         }
         .draw(image);
 
         Line {
-            p1: c,
-            p2: d,
+            p1: c.clone(),
+            p2: d.clone(),
             color: col.clone(),
         }
         .draw(image);
