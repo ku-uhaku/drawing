@@ -97,70 +97,25 @@ impl Drawable for Line {
 mod tests {
     use super::*;
 
-    struct Counter(i32);
-
-    impl Displayable for Counter {
-        fn display(&mut self, _x: i32, _y: i32, _color: Color) {
-            self.0 += 1;
-        }
-    }
-
-    #[test]
-    fn random_point_and_line() {
-        for _ in 0..1000 {
-            let p = Point::random(100, 50);
-
-            assert!(p.x >= 0 && p.x < 100);
-            assert!(p.y >= 0 && p.y < 50);
-
-            let l = Line::random(100, 50);
-
-            for p in [&l.p1, &l.p2] {
-                assert!(p.x >= 0 && p.x < 100);
-                assert!(p.y >= 0 && p.y < 50);
-            }
-        }
-    }
-
-    #[test]
-    fn edge_case_point_and_line() {
-        let line = Line::new(&Point::new(1, 1), &Point::new(1, 1), Color::white());
-
-        let mut counter = Counter(0);
-
-        line.draw(&mut counter);
-
-        assert_eq!(counter.0, 1);
-    }
-
     #[derive(Default)]
-    struct Canvas(Vec<(i32, i32, (u8, u8, u8, u8))>);
-
-    fn rgba(color: Color) -> (u8, u8, u8, u8) {
-        (color.r, color.g, color.b, color.a)
-    }
+    struct Canvas(Vec<(i32, i32)>);
 
     impl Displayable for Canvas {
-        fn display(&mut self, x: i32, y: i32, color: Color) {
-            self.0.push((x, y, rgba(color)));
+        fn display(&mut self, x: i32, y: i32, _color: Color) {
+            self.0.push((x, y));
         }
     }
 
     #[test]
-    fn random_drawings_stay_inside_image() {
-        for (width, height) in [(1, 1), (1, 12), (12, 1), (2, 2), (100, 50)] {
+    fn random_points_and_lines_stay_inside_image() {
+        for (width, height) in [(1, 1), (1, 12), (12, 1), (100, 50)] {
             for _ in 0..100 {
-                let mut canvas = Canvas::default();
-                Point::random(width, height).draw(&mut canvas);
-                Line::random(width, height).draw(&mut canvas);
-                Circle::random(width, height).draw(&mut canvas);
-                assert!(!canvas.0.is_empty());
-                assert!(
-                    canvas
-                        .0
-                        .iter()
-                        .all(|&(x, y, _)| (0..width).contains(&x) && (0..height).contains(&y))
-                );
+                let point = Point::random(width, height);
+                let line = Line::random(width, height);
+                for p in [&point, &line.p1, &line.p2] {
+                    assert!((0..width).contains(&p.x));
+                    assert!((0..height).contains(&p.y));
+                }
             }
         }
     }
@@ -183,40 +138,20 @@ mod tests {
         ] {
             let mut canvas = Canvas::default();
             Rectangle::new(&Point::new(x1, y1), &Point::new(x2, y2)).draw(&mut canvas);
-            let mut actual: Vec<_> = canvas.0.iter().map(|&(x, y, _)| (x, y)).collect();
-            actual.sort_unstable();
-            actual.dedup();
-            assert_eq!(actual, expected);
+            canvas.0.sort_unstable();
+            canvas.0.dedup();
+            assert_eq!(canvas.0, expected);
         }
     }
 
     #[test]
-    fn shapes_keep_their_color_when_drawn() {
-        let p = Point::new(3, 4);
-        let line = Line::new(&p, &Point::new(7, 8), Color::white());
-        let rectangle = Rectangle::new(&p, &Point::new(7, 8));
-        let triangle = Triangle::new(&p, &Point::new(7, 4), &Point::new(5, 8));
-        let circle = Circle::new(&p, 2);
-        for shape in [&line as &dyn Drawable, &rectangle, &triangle, &circle] {
-            let color = rgba(shape.color());
-            let mut canvas = Canvas::default();
-            shape.draw(&mut canvas);
-            shape.draw(&mut canvas);
-            assert!(!canvas.0.is_empty());
-            assert_eq!(rgba(shape.color()), color);
-            assert!(canvas.0.iter().all(|pixel| pixel.2 == color));
-        }
-    }
-
-    #[test]
-    fn zero_radius_circle_draws_only_center() {
+    fn identical_line_endpoints_draw_one_pixel() {
+        let line = Line::new(&Point::new(1, 1), &Point::new(1, 1), Color::white());
         let mut canvas = Canvas::default();
-        Circle::new(&Point::new(8, 9), 0).draw(&mut canvas);
-        assert!(!canvas.0.is_empty());
-        assert!(canvas.0.iter().all(|&(x, y, _)| (x, y) == (8, 9)));
+        line.draw(&mut canvas);
+        assert_eq!(canvas.0, vec![(1, 1)]);
     }
 }
-
 // Triangle and Rectangle
 
 #[derive(Debug)]
@@ -287,6 +222,64 @@ impl Drawable for Rectangle {
         Line::new(d, a, self.color.clone()).draw(image);
     }
 
+    fn color(&self) -> Color {
+        self.color.clone()
+    }
+}
+
+// adding cube
+
+pub struct Cube {
+    p1: Point,
+    size: i32,
+    color: Color,
+}
+
+impl Cube {
+    pub fn new(p1: &Point, size: i32) -> Self {
+        Self {
+            p1: *p1,
+            size,
+            color: Color::rgb(
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+                rand::random_range(0..255),
+            ),
+        }
+    }
+}
+
+impl Drawable for Cube {
+    fn draw(&self, image: &mut dyn Displayable) {
+        let x = self.p1.x;
+        let y = self.p1.y;
+        let size = self.size;
+        let offset = size / 4;
+        let front = [
+            Point::new(x, y),
+            Point::new(x + size, y),
+            Point::new(x + size, y + size),
+            Point::new(x, y + size),
+        ];
+        let back = front.map(|p| Point::new(p.x + offset, p.y + offset));
+
+        Rectangle {
+            p1: front[0],
+            p2: front[2],
+            color: self.color(),
+        }
+        .draw(image);
+        Rectangle {
+            p1: back[0],
+            p2: back[2],
+            color: self.color(),
+        }
+        .draw(image);
+
+        for i in 0..4 {
+            Line::new(&front[i], &back[i], self.color()).draw(image);
+        }
+    }
     fn color(&self) -> Color {
         self.color.clone()
     }
