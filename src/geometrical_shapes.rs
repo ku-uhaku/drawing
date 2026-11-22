@@ -60,11 +60,9 @@ impl Line {
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        Self {
-            p1: Point::random(width, height),
-            p2: Point::random(width, height),
-            color: random_color(),
-        }
+        let mut  r = Self::new(&Point::random(width, height), &Point::random(width, height));
+        r.color =  random_color();
+        r
     }
 }
 
@@ -104,17 +102,15 @@ impl Circle {
     pub fn new(c: &Point, r: i32) -> Self {
         Self {
             c: *c,
-            r,
+            r : r.max(0),
             color: Color::white(),
         }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        Self {
-            c: Point::random(width, height),
-            r: rand::random_range(0..255),
-            color: random_color(),
-        }
+        let mut c = Self::new( &Point::random(width, height), rand::random_range(0..255));
+        c.color = random_color();
+        c
     }
 }
 
@@ -166,14 +162,14 @@ impl Triangle {
         }
     }
 
-    pub fn random(width: i32, height: i32) -> Self {
-        Self {
-            p1: Point::random(width, height),
-            p2: Point::random(width, height),
-            p3: Point::random(width, height),
-            color: random_color(),
-        }
-    }
+    // pub fn random(width: i32, height: i32) -> Self {
+    //     Self {
+    //         p1: Point::random(width, height),
+    //         p2: Point::random(width, height),
+    //         p3: Point::random(width, height),
+    //         color: random_color(),
+    //     }
+    // }
 }
 
 impl Drawable for Triangle {
@@ -220,13 +216,13 @@ impl Rectangle {
         }
     }
 
-    pub fn random(width: i32, height: i32) -> Self {
-        Self {
-            p1: Point::random(width, height),
-            p2: Point::random(width, height),
-            color: random_color(),
-        }
-    }
+    // pub fn random(width: i32, height: i32) -> Self {
+    //     Self {
+    //         p1: Point::random(width, height),
+    //         p2: Point::random(width, height),
+    //         color: random_color(),
+    //     }
+    // }
 }
 
 impl Drawable for Rectangle {
@@ -248,6 +244,8 @@ impl Drawable for Rectangle {
             color: col.clone(),
         }
         .draw(image);
+
+            
         Line {
             p1: c,
             p2: d,
@@ -284,13 +282,13 @@ impl Cube {
         }
     }
 
-    pub fn random(width: i32, height: i32) -> Self {
-        Self {
-            p1: Point::random(width, height),
-            size: rand::random_range(1..100),
-            color: random_color(),
-        }
-    }
+    // pub fn random(width: i32, height: i32) -> Self {
+    //     Self {
+    //         p1: Point::random(width, height),
+    //         size: rand::random_range(1..100),
+    //         color: random_color(),
+    //     }
+    // }
 }
 
 impl Drawable for Cube {
@@ -401,7 +399,10 @@ mod tests {
     fn identical_line_endpoints_draw_one_pixel() {
         let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
         let mut canvas = Canvas::default();
+        line.draw(&mut canvas);let line = Line::new(&Point::new(1, 1), &Point::new(1, 1));
+        let mut canvas = Canvas::default();
         line.draw(&mut canvas);
+        assert_eq!(canvas.0, vec![(1, 1)]);
         assert_eq!(canvas.0, vec![(1, 1)]);
     }
 }

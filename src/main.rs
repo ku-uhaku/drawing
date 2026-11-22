@@ -21,12 +21,12 @@ fn main() {
     );
     triangle.draw(&mut image);
 
-    // for _ in 1..50 {
-    //     gs::Circle::random(image.width, image.height).draw(&mut image);
-    // }
+    for _ in 1..50 {
+        gs::Circle::random(image.width, image.height).draw(&mut image);
+    }
 
     gs::Circle::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
-     gs::Cube::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
+    gs::Cube::new(&gs::Point::random(image.width, image.height), 100).draw(&mut image);
 
     raster::save(&image, "image.png").unwrap();
 }
